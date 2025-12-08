@@ -1,0 +1,1257 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>第6章：Matplotlib 坐标轴定制练习题 - 徐秋莲</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <style>
+        body {
+            font-family: 'Microsoft YaHei', Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: linear-gradient(45deg, #e74c3c, #c0392b);
+            color: white;
+            border-radius: 10px;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 2.2em;
+        }
+        .student-info {
+            font-size: 1.1em;
+            margin-top: 10px;
+        }
+        .exercise {
+            margin: 30px 0;
+            padding: 20px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            background: #f8f9fa;
+            transition: all 0.3s ease;
+        }
+        .exercise:hover {
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            transform: translateY(-2px);
+        }
+        .exercise h2 {
+            color: #2c3e50;
+            border-bottom: 3px solid #e74c3c;
+            padding-bottom: 10px;
+            margin-top: 0;
+        }
+        .chart-box {
+            background: white;
+            border-radius: 8px;
+            padding: 15px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            margin: 20px 0;
+        }
+        .chart-box h3 {
+            margin: 0 0 15px 0;
+            color: #2c3e50;
+            text-align: center;
+            font-size: 1.1em;
+        }
+        .chart-container {
+            height: 400px;
+            position: relative;
+        }
+        .controls {
+            background: white;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 15px 0;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .controls h4 {
+            margin: 0 0 10px 0;
+            color: #2c3e50;
+            font-size: 1em;
+        }
+        .button-group {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-bottom: 10px;
+        }
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            font-family: 'Microsoft YaHei', Arial, sans-serif;
+        }
+        .btn-primary {
+            background: #3498db;
+            color: white;
+        }
+        .btn-primary:hover {
+            background: #2980b9;
+        }
+        .btn-success {
+            background: #2ecc71;
+            color: white;
+        }
+        .btn-success:hover {
+            background: #27ae60;
+        }
+        .btn-warning {
+            background: #f39c12;
+            color: white;
+        }
+        .btn-warning:hover {
+            background: #e67e22;
+        }
+        .btn-danger {
+            background: #e74c3c;
+            color: white;
+        }
+        .btn-danger:hover {
+            background: #c0392b;
+        }
+        .input-group {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            margin: 10px 0;
+        }
+        .input-group label {
+            min-width: 80px;
+            font-weight: bold;
+        }
+        .input-group input {
+            flex: 1;
+            padding: 5px 10px;
+            border: 1px solid #ddd;
+            border-radius: 3px;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>第6章：Matplotlib 坐标轴定制练习题</h1>
+            <div class="student-info">姓名：徐秋莲 | 学号：022340507</div>
+            <div style="margin-top: 10px;">
+                <button class="btn btn-warning" onclick="testCharts()">测试图表状态</button>
+            </div>
+        </div>
+
+        <div class="exercise">
+            <h2>练习 1：定制刻度位置、格式与样式</h2>
+            <div class="chart-box">
+                <h3>48小时股票价格走势</h3>
+                <div class="chart-container">
+                    <canvas id="stockPriceChart"></canvas>
+                </div>
+            </div>
+            <div class="controls">
+                <h4>数据控制面板</h4>
+                <div class="button-group">
+                    <button class="btn btn-primary" onclick="updateStockPriceData()">更新股票价格数据</button>
+                    <button class="btn btn-success" onclick="randomizeStockPrice()">随机价格数据</button>
+                    <button class="btn btn-danger" onclick="resetStockPrice()">重置数据</button>
+                </div>
+                <div class="input-group">
+                    <label>手动数据:</label>
+                    <input type="text" id="stockDataInput" placeholder="输入逗号分隔的数据，如: 100,101,102,103" style="flex: 2;">
+                    <button class="btn btn-success" onclick="applyStockData()">应用数据</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="exercise">
+            <h2>练习 2：添加图内坐标轴</h2>
+            <div class="chart-box">
+                <h3>2024年销量数据分析</h3>
+                <div style="position: relative; height: 500px;">
+                    <canvas id="mainSalesChart" style="height: 500px;"></canvas>
+                    <div style="position: absolute; width: 350px; height: 200px; background: white; border: 2px solid #e74c3c; border-radius: 8px; padding: 10px; top: 20px; right: 20px; z-index: 10; box-shadow: 0 4px 12px rgba(0,0,0,0.15);">
+                        <h4 style="margin: 0 0 10px 0; font-size: 12px; text-align: center; color: #e74c3c;">华东区销量详情</h4>
+                        <canvas id="insetSalesChart" style="height: 160px;"></canvas>
+                    </div>
+                </div>
+            </div>
+            <div class="controls">
+                <h4>数据控制面板</h4>
+                <div class="button-group">
+                    <button class="btn btn-primary" onclick="updateMainSalesData()">更新全国销量数据</button>
+                    <button class="btn btn-success" onclick="updateInsetSalesData()">更新华东区数据</button>
+                    <button class="btn btn-warning" onclick="swapSalesData()">交换数据</button>
+                </div>
+                <div class="input-group">
+                    <label>全国数据:</label>
+                    <input type="text" id="mainSalesInput" placeholder="输入12个月数据，逗号分隔" style="flex: 2;">
+                    <button class="btn btn-success" onclick="applyMainSalesData()">应用</button>
+                </div>
+                <div class="input-group">
+                    <label>华东数据:</label>
+                    <input type="text" id="insetSalesInput" placeholder="输入12个月数据，逗号分隔" style="flex: 2;">
+                    <button class="btn btn-success" onclick="applyInsetSalesData()">应用</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="exercise">
+            <h2>练习 3：隐藏部分轴脊</h2>
+            <div class="chart-box">
+                <h3>编程语言受欢迎程度投票结果</h3>
+                <div class="chart-container">
+                    <canvas id="languageChart"></canvas>
+                </div>
+            </div>
+            <div class="controls">
+                <h4>数据控制面板</h4>
+                <div class="button-group">
+                    <button class="btn btn-primary" onclick="updateLanguageData()">更新投票数据</button>
+                    <button class="btn btn-success" onclick="randomizeLanguageData()">随机投票数据</button>
+                    <button class="btn btn-warning" onclick="sortLanguageData()">排序数据</button>
+                    <button class="btn btn-danger" onclick="resetLanguageData()">重置数据</button>
+                </div>
+                <div class="input-group">
+                    <label>投票数据:</label>
+                    <input type="text" id="languageDataInput" placeholder="输入各语言得票数，逗号分隔" style="flex: 2;">
+                    <button class="btn btn-success" onclick="applyLanguageData()">应用数据</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="exercise">
+            <h2>练习 4：移动轴脊到数据中心</h2>
+            <div class="chart-box">
+                <h3>二次函数 y = x²</h3>
+                <div class="chart-container">
+                    <canvas id="quadraticChart"></canvas>
+                </div>
+            </div>
+            <div class="controls">
+                <h4>数据控制面板</h4>
+                <div class="button-group">
+                    <button class="btn btn-primary" onclick="updateQuadraticData()">更新二次函数</button>
+                    <button class="btn btn-success" onclick="randomizeQuadratic()">随机系数</button>
+                </div>
+                <div class="input-group">
+                    <label>函数系数 a:</label>
+                    <input type="number" id="quadCoeff" value="1" min="0.1" max="5" step="0.1">
+                    <button class="btn btn-primary" onclick="updateQuadraticCoeff()">更新系数</button>
+                </div>
+                <div class="input-group">
+                    <label>手动数据:</label>
+                    <input type="text" id="quadraticDataInput" placeholder="输入Y值数据，逗号分隔" style="flex: 2;">
+                    <button class="btn btn-success" onclick="applyQuadraticData()">应用数据</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="exercise">
+            <h2>练习 5：综合定制（轴脊+刻度）</h2>
+            <div class="chart-box">
+                <h3>正切函数 y = tan(x)</h3>
+                <div class="chart-container">
+                    <canvas id="tangentChart"></canvas>
+                </div>
+            </div>
+                <div class="controls">
+                <h4>数据控制面板</h4>
+                <div class="button-group">
+                    <button class="btn btn-primary" onclick="updateTangentData()">更新正切函数</button>
+                    <button class="btn btn-success" onclick="changeTangentRange()">改变范围</button>
+                    <button class="btn btn-warning" onclick="resetTangentData()">重置数据</button>
+                    <button class="btn btn-danger" onclick="switchFunctionType('sine')">切换为正弦函数</button>
+                    <button class="btn btn-danger" onclick="switchFunctionType('cosine')">切换为余弦函数</button>
+                </div>
+                <div class="input-group">
+                    <label>函数类型:</label>
+                    <select id="functionType" onchange="switchFunctionType()">
+                        <option value="tangent">正切函数 (tan)</option>
+                        <option value="sine">正弦函数 (sin)</option>
+                        <option value="cosine">余弦函数 (cos)</option>
+                        <option value="cotangent">余切函数 (cot)</option>
+                        <option value="secant">正割函数 (sec)</option>
+                    </select>
+                </div>
+                <div class="input-group">
+                    <label>Y轴范围:</label>
+                    <input type="number" id="tangentRange" value="5" min="2" max="10" step="1">
+                    <button class="btn btn-primary" onclick="updateTangentRange()">更新范围</button>
+                </div>
+                <div class="input-group">
+                    <label>手动数据:</label>
+                    <input type="text" id="tangentDataInput" placeholder="输入逗号分隔的数据，如: 1,2,3,4,5" style="flex: 2;">
+                    <button class="btn btn-success" onclick="applyManualData()">应用数据</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 检查Chart.js是否加载成功
+        if (typeof Chart === 'undefined') {
+            console.error('Chart.js未加载成功');
+            alert('图表库加载失败，请检查网络连接');
+        } else {
+            console.log('Chart.js加载成功，开始创建图表');
+            
+            // 全局变量存储图表实例
+            let stockPriceChart, mainSalesChart, insetSalesChart, quadraticChart, tangentChart, languageChart;
+            
+            // 数据更新函数
+            function updateStockPriceData() {
+                const newData = [];
+                for (let i = 0; i < 25; i++) {
+                    newData.push(95 + Math.random() * 10);
+                }
+                if (stockPriceChart) {
+                    stockPriceChart.data.datasets[0].data = newData;
+                    stockPriceChart.update('none');
+                    stockPriceChart.update();
+                }
+            }
+
+            function randomizeStockPrice() {
+                updateStockPriceData();
+            }
+
+            function resetStockPrice() {
+                const originalData = [100.0, 100.2, 101.0, 100.5, 100.8, 102.0, 101.5, 101.8, 101.3, 100.9, 100.0, 99.5, 100.0, 99.8, 100.5, 101.2, 101.0, 101.5, 102.5, 103.0, 102.8, 102.5, 102.0, 101.5, 101.8];
+                if (stockPriceChart) {
+                    stockPriceChart.data.datasets[0].data = originalData;
+                    stockPriceChart.update('none');
+                    stockPriceChart.update();
+                }
+            }
+
+            function applyStockData() {
+                console.log('开始应用股票数据...');
+                const input = document.getElementById('stockDataInput');
+                console.log('输入框元素:', input);
+                
+                if (!input) {
+                    console.error('找不到输入框元素 stockDataInput');
+                    alert('找不到输入框，请检查页面');
+                    return;
+                }
+                
+                const inputValue = input.value;
+                console.log('输入值:', inputValue);
+                
+                if (!inputValue.trim()) {
+                    alert('请输入数据，用逗号分隔');
+                    return;
+                }
+                
+                try {
+                    const manualData = inputValue.split(',').map(val => {
+                        const num = parseFloat(val.trim());
+                        if (isNaN(num)) throw new Error(`"${val.trim()}" 不是有效数字`);
+                        return num;
+                    });
+                    
+                    console.log('解析后的数据:', manualData);
+                    console.log('stockPriceChart对象:', stockPriceChart);
+                    
+                    if (stockPriceChart) {
+                        // 生成对应数量的时间标签
+                        const timeLabels = [];
+                        for (let i = 0; i < manualData.length; i++) {
+                            if (i % Math.max(1, Math.floor(manualData.length / 6)) === 0) {
+                                timeLabels.push(`${i * 2}小时`);
+                            } else {
+                                timeLabels.push('');
+                            }
+                        }
+                        
+                        console.log('生成的标签:', timeLabels);
+                        
+                        stockPriceChart.data.labels = timeLabels;
+                        stockPriceChart.data.datasets[0].data = manualData;
+                        
+                        console.log('更新前的图表数据:', stockPriceChart.data);
+                        
+                        stockPriceChart.update();
+                        
+                        console.log('股票数据应用完成，数据点数量:', manualData.length);
+                        alert('数据应用成功！');
+                    } else {
+                        console.error('stockPriceChart未初始化');
+                        alert('图表未初始化，请刷新页面重试');
+                    }
+                } catch (error) {
+                    console.error('数据解析错误:', error);
+                    alert('数据解析错误：' + error.message);
+                }
+            }
+
+            function updateMainSalesData() {
+                const newData = [];
+                for (let i = 0; i < 12; i++) {
+                    newData.push(40 + Math.random() * 60);
+                }
+                if (mainSalesChart) {
+                    mainSalesChart.data.datasets[0].data = newData;
+                    mainSalesChart.update('none');
+                    mainSalesChart.update();
+                }
+            }
+
+            function updateInsetSalesData() {
+                const newData = [];
+                for (let i = 0; i < 12; i++) {
+                    newData.push(15 + Math.random() * 30);
+                }
+                if (insetSalesChart) {
+                    insetSalesChart.data.datasets[0].data = newData;
+                    insetSalesChart.update('none');
+                    insetSalesChart.update();
+                }
+            }
+
+            function swapSalesData() {
+                const mainData = mainSalesChart ? mainSalesChart.data.datasets[0].data : [];
+                const insetData = insetSalesChart ? insetSalesChart.data.datasets[0].data : [];
+                if (mainSalesChart && insetSalesChart) {
+                    mainSalesChart.data.datasets[0].data = insetData;
+                    insetSalesChart.data.datasets[0].data = mainData;
+                    mainSalesChart.update('none');
+                    mainSalesChart.update();
+                    insetSalesChart.update('none');
+                    insetSalesChart.update();
+                }
+            }
+
+            function applyMainSalesData() {
+                console.log('开始应用全国销量数据...');
+                const input = document.getElementById('mainSalesInput');
+                console.log('输入框元素:', input);
+                
+                if (!input) {
+                    console.error('找不到输入框元素 mainSalesInput');
+                    alert('找不到输入框，请检查页面');
+                    return;
+                }
+                
+                const inputValue = input.value;
+                console.log('输入值:', inputValue);
+                
+                if (!inputValue.trim()) {
+                    alert('请输入数据，用逗号分隔');
+                    return;
+                }
+                
+                try {
+                    const manualData = inputValue.split(',').map(val => {
+                        const num = parseFloat(val.trim());
+                        if (isNaN(num)) throw new Error(`"${val.trim()}" 不是有效数字`);
+                        return num;
+                    });
+                    
+                    console.log('解析后的数据:', manualData);
+                    console.log('mainSalesChart对象:', mainSalesChart);
+                    
+                    if (mainSalesChart) {
+                        const months = ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月'];
+                        mainSalesChart.data.labels = months.slice(0, manualData.length);
+                        mainSalesChart.data.datasets[0].data = manualData;
+                        mainSalesChart.update();
+                        console.log('全国销量数据应用完成，数据点数量:', manualData.length);
+                        alert('全国销量数据应用成功！');
+                    } else {
+                        console.error('mainSalesChart未初始化');
+                        alert('图表未初始化，请刷新页面重试');
+                    }
+                } catch (error) {
+                    console.error('数据解析错误:', error);
+                    alert('数据解析错误：' + error.message);
+                }
+            }
+
+            function applyInsetSalesData() {
+                console.log('开始应用华东区销量数据...');
+                const input = document.getElementById('insetSalesInput');
+                console.log('输入框元素:', input);
+                
+                if (!input) {
+                    console.error('找不到输入框元素 insetSalesInput');
+                    alert('找不到输入框，请检查页面');
+                    return;
+                }
+                
+                const inputValue = input.value;
+                console.log('输入值:', inputValue);
+                
+                if (!inputValue.trim()) {
+                    alert('请输入数据，用逗号分隔');
+                    return;
+                }
+                
+                try {
+                    const manualData = inputValue.split(',').map(val => {
+                        const num = parseFloat(val.trim());
+                        if (isNaN(num)) throw new Error(`"${val.trim()}" 不是有效数字`);
+                        return num;
+                    });
+                    
+                    console.log('解析后的数据:', manualData);
+                    console.log('insetSalesChart对象:', insetSalesChart);
+                    
+                    if (insetSalesChart) {
+                        const months = ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月'];
+                        insetSalesChart.data.labels = months.slice(0, manualData.length);
+                        insetSalesChart.data.datasets[0].data = manualData;
+                        insetSalesChart.update();
+                        console.log('华东区销量数据应用完成，数据点数量:', manualData.length);
+                        alert('华东区销量数据应用成功！');
+                    } else {
+                        console.error('insetSalesChart未初始化');
+                        alert('图表未初始化，请刷新页面重试');
+                    }
+                } catch (error) {
+                    console.error('数据解析错误:', error);
+                    alert('数据解析错误：' + error.message);
+                }
+            }
+
+            function updateLanguageData() {
+                const newData = [
+                    Math.floor(Math.random() * 300) + 200,
+                    Math.floor(Math.random() * 300) + 200,
+                    Math.floor(Math.random() * 300) + 200,
+                    Math.floor(Math.random() * 300) + 200,
+                    Math.floor(Math.random() * 300) + 200,
+                    Math.floor(Math.random() * 300) + 200,
+                    Math.floor(Math.random() * 300) + 200
+                ];
+                if (languageChart) {
+                    languageChart.data.datasets[0].data = newData;
+                    languageChart.update('none');
+                    languageChart.update();
+                }
+            }
+
+            function randomizeLanguageData() {
+                // 移除随机数据生成，保持当前数据不变
+                console.log('随机数据功能已移除，保持当前数据');
+            }
+
+            function sortLanguageData() {
+                if (languageChart) {
+                    const sortOrder = document.getElementById('sortOrder').value;
+                    const currentData = [...languageChart.data.datasets[0].data];
+                    const currentLabels = [...languageChart.data.labels];
+                    
+                    if (sortOrder === 'asc') {
+                        const combined = currentLabels.map((label, index) => ({
+                            label: label,
+                            value: currentData[index]
+                        }));
+                        combined.sort((a, b) => a.value - b.value);
+                        languageChart.data.labels = combined.map(item => item.label);
+                        languageChart.data.datasets[0].data = combined.map(item => item.value);
+                    } else if (sortOrder === 'desc') {
+                        const combined = currentLabels.map((label, index) => ({
+                            label: label,
+                            value: currentData[index]
+                        }));
+                        combined.sort((a, b) => b.value - a.value);
+                        languageChart.data.labels = combined.map(item => item.label);
+                        languageChart.data.datasets[0].data = combined.map(item => item.value);
+                    } else {
+                        languageChart.data.labels = currentLabels;
+                        languageChart.data.datasets[0].data = currentData;
+                    }
+                    languageChart.update('none');
+                    languageChart.update();
+                }
+            }
+
+            function resetLanguageData() {
+                const originalData = [450, 380, 290, 180, 120, 90];
+                if (languageChart) {
+                    languageChart.data.datasets[0].data = originalData;
+                    languageChart.update('none');
+                    languageChart.update();
+                }
+            }
+
+            function applyLanguageData() {
+                console.log('开始应用编程语言数据...');
+                const input = document.getElementById('languageDataInput');
+                console.log('输入框元素:', input);
+                
+                if (!input) {
+                    console.error('找不到输入框元素 languageDataInput');
+                    alert('找不到输入框，请检查页面');
+                    return;
+                }
+                
+                const inputValue = input.value;
+                console.log('输入值:', inputValue);
+                
+                if (!inputValue.trim()) {
+                    alert('请输入数据，用逗号分隔');
+                    return;
+                }
+                
+                try {
+                    const manualData = inputValue.split(',').map(val => {
+                        const num = parseFloat(val.trim());
+                        if (isNaN(num)) throw new Error(`"${val.trim()}" 不是有效数字`);
+                        return num;
+                    });
+                    
+                    console.log('解析后的数据:', manualData);
+                    console.log('languageChart对象:', languageChart);
+                    
+                    if (languageChart) {
+                        const languages = ['Python', 'JavaScript', 'Java', 'C#', 'Go', 'TypeScript', 'Rust', 'C++', 'Swift'];
+                        languageChart.data.labels = languages.slice(0, manualData.length);
+                        languageChart.data.datasets[0].data = manualData;
+                        languageChart.update();
+                        console.log('编程语言投票数据应用完成，数据点数量:', manualData.length);
+                        alert('编程语言数据应用成功！');
+                    } else {
+                        console.error('languageChart未初始化');
+                        alert('图表未初始化，请刷新页面重试');
+                    }
+                } catch (error) {
+                    console.error('数据解析错误:', error);
+                    alert('数据解析错误：' + error.message);
+                }
+            }
+
+            function updateQuadraticData() {
+                const coeff = parseFloat(document.getElementById('quadCoeff').value);
+                const newData = [];
+                for (let x = -5; x <= 5; x += 0.1) {
+                    newData.push(coeff * x * x);
+                }
+                if (quadraticChart) {
+                    quadraticChart.data.datasets[0].data = newData;
+                    quadraticChart.update('none');
+                    quadraticChart.update();
+                }
+            }
+
+            function randomizeQuadratic() {
+                const coeff = 0.5 + Math.random() * 2;
+                document.getElementById('quadCoeff').value = coeff.toFixed(1);
+                updateQuadraticData();
+            }
+
+            function updateQuadraticCoeff() {
+                updateQuadraticData();
+            }
+
+            function applyQuadraticData() {
+                console.log('开始应用二次函数数据...');
+                const input = document.getElementById('quadraticDataInput');
+                console.log('输入框元素:', input);
+                
+                if (!input) {
+                    console.error('找不到输入框元素 quadraticDataInput');
+                    alert('找不到输入框，请检查页面');
+                    return;
+                }
+                
+                const inputValue = input.value;
+                console.log('输入值:', inputValue);
+                
+                if (!inputValue.trim()) {
+                    alert('请输入数据，用逗号分隔');
+                    return;
+                }
+                
+                try {
+                    const manualData = inputValue.split(',').map(val => {
+                        const num = parseFloat(val.trim());
+                        if (isNaN(num)) throw new Error(`"${val.trim()}" 不是有效数字`);
+                        return num;
+                    });
+                    
+                    console.log('解析后的数据:', manualData);
+                    console.log('quadraticChart对象:', quadraticChart);
+                    
+                    if (quadraticChart) {
+                        const xLabels = manualData.map((_, index) => {
+                            const x = -5 + (index * 10 / Math.max(1, manualData.length - 1));
+                            return x.toFixed(1);
+                        });
+                        
+                        quadraticChart.data.labels = xLabels;
+                        quadraticChart.data.datasets[0].data = manualData;
+                        quadraticChart.data.datasets[0].label = '手动输入数据';
+                        quadraticChart.update();
+                        console.log('二次函数数据应用完成，数据点数量:', manualData.length);
+                        alert('二次函数数据应用成功！');
+                    } else {
+                        console.error('quadraticChart未初始化');
+                        alert('图表未初始化，请刷新页面重试');
+                    }
+                } catch (error) {
+                    console.error('数据解析错误:', error);
+                    alert('数据解析错误：' + error.message);
+                }
+            }
+
+            // 添加一个测试函数来检查所有图表是否正确初始化
+            function testCharts() {
+                console.log('=== 图表状态检查 ===');
+                console.log('stockPriceChart:', stockPriceChart ? '已初始化' : '未初始化');
+                console.log('mainSalesChart:', mainSalesChart ? '已初始化' : '未初始化');
+                console.log('insetSalesChart:', insetSalesChart ? '已初始化' : '未初始化');
+                console.log('languageChart:', languageChart ? '已初始化' : '未初始化');
+                console.log('quadraticChart:', quadraticChart ? '已初始化' : '未初始化');
+                console.log('tangentChart:', tangentChart ? '已初始化' : '未初始化');
+                
+                // 检查输入框
+                console.log('=== 输入框状态检查 ===');
+                console.log('stockDataInput:', document.getElementById('stockDataInput') ? '存在' : '不存在');
+                console.log('mainSalesInput:', document.getElementById('mainSalesInput') ? '存在' : '不存在');
+                console.log('insetSalesInput:', document.getElementById('insetSalesInput') ? '存在' : '不存在');
+                console.log('languageDataInput:', document.getElementById('languageDataInput') ? '存在' : '不存在');
+                console.log('quadraticDataInput:', document.getElementById('quadraticDataInput') ? '存在' : '不存在');
+                console.log('tangentDataInput:', document.getElementById('tangentDataInput') ? '存在' : '不存在');
+            }
+
+            function updateTangentData() {
+                const functionType = document.getElementById('functionType').value;
+                const range = parseFloat(document.getElementById('tangentRange').value);
+                
+                console.log('切换到函数类型:', functionType);
+                console.log('当前范围:', range);
+                
+                generateFunctionChart(functionType, null, range);
+                
+                console.log('函数图表更新完成');
+            }
+
+            function applyManualData() {
+                const input = document.getElementById('tangentDataInput').value;
+                const range = parseFloat(document.getElementById('tangentRange').value);
+                
+                if (!input.trim()) {
+                    alert('请输入数据，用逗号分隔');
+                    return;
+                }
+                
+                try {
+                    const manualData = input.split(',').map(val => parseFloat(val.trim()));
+                    if (manualData.some(isNaN)) {
+                        alert('数据格式错误，请输入有效的数字');
+                        return;
+                    }
+                    
+                    // 应用手动数据到当前图表
+                    if (tangentChart) {
+                        const xLabels = manualData.map((_, index) => index.toString());
+                        tangentChart.data.labels = xLabels;
+                        tangentChart.data.datasets = [{
+                            label: '手动输入数据',
+                            data: manualData,
+                            borderColor: '#e74c3c',
+                            backgroundColor: '#e74c3c',
+                            borderWidth: 2,
+                            pointRadius: 4,
+                            tension: 0.1
+                        }];
+                        tangentChart.options.scales.y.min = -range;
+                        tangentChart.options.scales.y.max = range;
+                        tangentChart.update();
+                    }
+                    
+                    console.log('手动数据应用完成');
+                } catch (error) {
+                    alert('数据解析错误：' + error.message);
+                }
+            }
+
+            function changeTangentRange() {
+                const range = parseFloat(document.getElementById('tangentRange').value);
+                if (tangentChart) {
+                    tangentChart.options.scales.y.max = range;
+                    tangentChart.options.scales.y.min = -range;
+                    tangentChart.update();
+                    // 重新生成函数数据以适应新范围
+                    updateTangentData();
+                }
+            }
+
+            function updateTangentRange() {
+                changeTangentRange();
+            }
+
+            function resetTangentData() {
+                document.getElementById('tangentRange').value = 5;
+                updateTangentData();
+            }
+
+            function generateFunctionChart(functionType, data, range) {
+                const datasets = [];
+                
+                let functionLabel, functionFormula, hasAsymptotes;
+                
+                switch(functionType) {
+                    case 'tangent':
+                        functionLabel = 'y = tan(x)';
+                        functionFormula = (x) => Math.tan(x);
+                        hasAsymptotes = true;
+                        // 正切函数的间断点：x = π/2 + kπ
+                        var segments = [
+                            { start: -Math.PI, end: -Math.PI/2 - 0.01 },
+                            { start: -Math.PI/2 + 0.01, end: Math.PI/2 - 0.01 },
+                            { start: Math.PI/2 + 0.01, end: Math.PI }
+                        ];
+                        break;
+                    case 'sine':
+                        functionLabel = 'y = sin(x)';
+                        functionFormula = (x) => Math.sin(x);
+                        hasAsymptotes = false;
+                        var segments = [{ start: -Math.PI, end: Math.PI }];
+                        break;
+                    case 'cosine':
+                        functionLabel = 'y = cos(x)';
+                        functionFormula = (x) => Math.cos(x);
+                        hasAsymptotes = false;
+                        var segments = [{ start: -Math.PI, end: Math.PI }];
+                        break;
+                    case 'cotangent':
+                        functionLabel = 'y = cot(x)';
+                        functionFormula = (x) => 1 / Math.tan(x);
+                        hasAsymptotes = true;
+                        // 余切函数的间断点：x = kπ
+                        var segments = [
+                            { start: -Math.PI + 0.01, end: -0.01 },
+                            { start: 0.01, end: Math.PI - 0.01 }
+                        ];
+                        break;
+                    case 'secant':
+                        functionLabel = 'y = sec(x)';
+                        functionFormula = (x) => 1 / Math.cos(x);
+                        hasAsymptotes = true;
+                        // 正割函数的间断点：x = π/2 + kπ
+                        var segments = [
+                            { start: -Math.PI, end: -Math.PI/2 - 0.01 },
+                            { start: -Math.PI/2 + 0.01, end: Math.PI/2 - 0.01 },
+                            { start: Math.PI/2 + 0.01, end: Math.PI }
+                        ];
+                        break;
+                    default:
+                        return;
+                }
+
+                segments.forEach((segment, index) => {
+                    const dataPoints = [];
+                    for (let x = segment.start; x <= segment.end; x += 0.02) {
+                        const y = functionFormula(x);
+                        if (Math.abs(y) <= range) {
+                            dataPoints.push({
+                                x: x,
+                                y: y
+                            });
+                        }
+                    }
+
+                    if (dataPoints.length > 0) {
+                        datasets.push({
+                            label: index === 0 ? functionLabel : '',
+                            data: dataPoints,
+                            borderColor: '#e74c3c',
+                            borderWidth: 2,
+                            pointRadius: 0,
+                            fill: false,
+                            showLine: true
+                        });
+                    }
+                });
+
+                // 添加垂直渐近线（对于有间断点的函数）
+                if (hasAsymptotes && functionType === 'tangent') {
+                    const asymptotes = [-Math.PI/2, Math.PI/2];
+                    asymptotes.forEach(x => {
+                        const asymptoteData = [];
+                        for (let y = -range; y <= range; y += range/10) {
+                            asymptoteData.push({ x: x, y: y });
+                        }
+                        datasets.push({
+                            label: '',
+                            data: asymptoteData,
+                            borderColor: '#999',
+                            borderWidth: 1,
+                            borderDash: [5, 5],
+                            pointRadius: 0,
+                            fill: false,
+                            showLine: true
+                        });
+                    });
+                }
+
+                if (tangentChart) {
+                    tangentChart.data.datasets = datasets;
+                    tangentChart.options.scales.y.min = -range;
+                    tangentChart.options.scales.y.max = range;
+                    tangentChart.options.scales.x.title.text = 'x (弧度)';
+                    tangentChart.update();
+                    console.log('函数图表更新完成，数据集数量:', datasets.length);
+                }
+            }
+
+            function switchFunctionType(type) {
+                document.getElementById('functionType').value = type;
+                updateTangentData();
+            }
+
+            // 页面加载完成后初始化图表
+            window.addEventListener('load', function() {
+                console.log('页面加载完成，开始初始化图表');
+                
+                // 初始化股票价格图表
+                const stockPriceCtx = document.getElementById('stockPriceChart');
+                if (stockPriceCtx) {
+                    const timeLabels = [];
+                    for (let i = 0; i < 25; i++) {
+                        if (i % 6 === 0) {
+                            timeLabels.push(`${i * 2}小时`);
+                        } else {
+                            timeLabels.push('');
+                        }
+                    }
+                    
+                    stockPriceChart = new Chart(stockPriceCtx, {
+                        type: 'line',
+                        data: {
+                            labels: timeLabels,
+                            datasets: [{
+                                label: '股票价格',
+                                data: [100.0, 100.2, 101.0, 100.5, 100.8, 102.0, 101.5, 101.8, 
+                                                    101.3, 100.9, 100.0, 99.5, 100.0, 99.8, 100.5, 101.2, 101.0, 101.5, 102.5, 
+                                                    103.0, 102.8, 102.5, 102.0, 101.5, 101.8],
+                                borderColor: '#27ae60',
+                                backgroundColor: '#27ae60',
+                                borderWidth: 2,
+                                pointRadius: 4,
+                                tension: 0.1
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                                title: {
+                                    display: true,
+                                    text: '48小时股票价格走势',
+                                    font: {
+                                        size: 16,
+                                        weight: 'bold'
+                                    }
+                                },
+                                legend: {
+                                    display: true,
+                                    position: 'top'
+                                }
+                            },
+                            scales: {
+                                x: {
+                                    title: {
+                                        display: true,
+                                        text: '时间'
+                                    },
+                                    grid: {
+                                        display: true,
+                                        color: 'rgba(0, 0, 0, 0.1)'
+                                    }
+                                },
+                                y: {
+                                    title: {
+                                        display: true,
+                                        text: '价格 (元)'
+                                    },
+                                    grid: {
+                                        display: true,
+                                        color: 'rgba(0, 0, 0, 0.1)'
+                                    }
+                                }
+                            }
+                        }
+                    });
+                }
+
+                // 初始化主销量图表
+                const mainSalesCtx = document.getElementById('mainSalesChart');
+                if (mainSalesCtx) {
+                    const months = ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月'];
+                    const mainData = [50, 55, 60, 65, 75, 80, 85, 90, 80, 70, 65, 70];
+                    
+                    mainSalesChart = new Chart(mainSalesCtx, {
+                        type: 'line',
+                        data: {
+                            labels: months,
+                            datasets: [{
+                                label: '全国总销量',
+                                data: mainData,
+                                borderColor: '#3498db',
+                                backgroundColor: '#3498db',
+                                borderWidth: 2,
+                                pointRadius: 6,
+                                tension: 0.1
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                                legend: {
+                                    display: true,
+                                    position: 'top'
+                                }
+                            },
+                            scales: {
+                                x: {
+                                    title: {
+                                        display: true,
+                                        text: '月份'
+                                    }
+                                },
+                                y: {
+                                    title: {
+                                        display: true,
+                                        text: '销量 (万台)'
+                                    },
+                                    beginAtZero: true
+                                }
+                            }
+                        }
+                    });
+                }
+
+                // 初始化嵌入图表
+                const insetSalesCtx = document.getElementById('insetSalesChart');
+                if (insetSalesCtx) {
+                    const eastData = [20, 22, 25, 28, 30, 35, 38, 40, 35, 30, 28, 30];
+                    
+                    insetSalesChart = new Chart(insetSalesCtx, {
+                        type: 'line',
+                        data: {
+                            labels: ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月'],
+                            datasets: [{
+                                label: '华东区销量',
+                                data: eastData,
+                                borderColor: '#e74c3c',
+                                backgroundColor: '#e74c3c',
+                                borderWidth: 2,
+                                pointRadius: 4,
+                                tension: 0.1
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                                legend: {
+                                    display: false
+                                },
+                                title: {
+                                    display: false
+                                }
+                            },
+                            scales: {
+                                x: {
+                                    display: false
+                                },
+                                y: {
+                                    display: false
+                                }
+                            }
+                        }
+                    });
+                }
+
+                // 初始化编程语言图表
+                const languageCtx = document.getElementById('languageChart');
+                if (languageCtx) {
+                    languageChart = new Chart(languageCtx, {
+                        type: 'bar',
+                        data: {
+                            labels: ['Python', 'JavaScript', 'Java', 'C#', 'Go', 'TypeScript'],
+                            datasets: [{
+                                label: '得票数',
+                                data: [450, 380, 290, 180, 120, 90],
+                                backgroundColor: '#87ceeb',
+                                borderColor: '#5f9ea0',
+                                borderWidth: 1
+                            }]
+                        },
+                        options: {
+                            indexAxis: 'y',
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                                legend: {
+                                    display: false
+                                }
+                            },
+                            scales: {
+                                x: {
+                                    title: {
+                                        display: true,
+                                        text: '得票数'
+                                    },
+                                    beginAtZero: true,
+                                    max: 500
+                                }
+                            }
+                        }
+                    });
+                }
+
+                // 初始化二次函数图表
+                const quadraticCtx = document.getElementById('quadraticChart');
+                if (quadraticCtx) {
+                    const xData = [];
+                    const yData = [];
+                    for (let x = -5; x <= 5; x += 0.1) {
+                        xData.push(x);
+                        yData.push(x * x);
+                    }
+                    
+                    quadraticChart = new Chart(quadraticCtx, {
+                        type: 'line',
+                        data: {
+                            labels: xData,
+                            datasets: [{
+                                label: 'y = x²',
+                                data: yData,
+                                borderColor: '#3498db',
+                                backgroundColor: '#3498db',
+                                borderWidth: 2,
+                                pointRadius: 0,
+                                tension: 0.1,
+                                fill: false
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                                legend: {
+                                    display: true,
+                                    position: 'top'
+                                }
+                            },
+                            scales: {
+                                x: {
+                                    title: {
+                                        display: true,
+                                        text: 'x'
+                                    },
+                                    grid: {
+                                        display: true,
+                                        color: 'rgba(0, 0, 0, 0.1)'
+                                    }
+                                },
+                                y: {
+                                    title: {
+                                        display: true,
+                                        text: 'y'
+                                    },
+                                    beginAtZero: true,
+                                    max: 25
+                                }
+                            }
+                        }
+                    });
+                }
+
+                // 初始化正切函数图表
+                const tangentCtx = document.getElementById('tangentChart');
+                if (tangentCtx) {
+                    tangentChart = new Chart(tangentCtx, {
+                        type: 'line',
+                        data: {
+                            datasets: []
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            parsing: {
+                                xAxisKey: 'x',
+                                yAxisKey: 'y'
+                            },
+                            plugins: {
+                                legend: {
+                                    display: true,
+                                    position: 'top'
+                                }
+                            },
+                            scales: {
+                                x: {
+                                    type: 'linear',
+                                    position: 'center',
+                                    title: {
+                                        display: true,
+                                        text: 'x (弧度)'
+                                    },
+                                    grid: {
+                                        display: true,
+                                        color: 'rgba(0, 0, 0, 0.1)'
+                                    },
+                                    ticks: {
+                                        callback: function(value, index) {
+                                            const val = parseFloat(value);
+                                            if (Math.abs(val + Math.PI) < 0.1) return '-π';
+                                            if (Math.abs(val + Math.PI/2) < 0.1) return '-π/2';
+                                            if (Math.abs(val) < 0.1) return '0';
+                                            if (Math.abs(val - Math.PI/2) < 0.1) return 'π/2';
+                                            if (Math.abs(val - Math.PI) < 0.1) return 'π';
+                                            return '';
+                                        }
+                                    },
+                                    min: -Math.PI,
+                                    max: Math.PI
+                                },
+                                y: {
+                                    title: {
+                                        display: true,
+                                        text: 'y'
+                                    },
+                                    grid: {
+                                        display: true,
+                                        color: 'rgba(0, 0, 0, 0.1)'
+                                    },
+                                    min: -5,
+                                    max: 5
+                                }
+                            }
+                        }
+                    });
+                    
+                    // 初始化时生成正切函数
+                    setTimeout(() => {
+                        updateTangentData();
+                    }, 100);
+                }
+
+                console.log('所有图表初始化完成');
+            });
+        }
+    </script>
+</body>
+</html>
